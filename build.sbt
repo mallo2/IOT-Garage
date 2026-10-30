@@ -1,4 +1,4 @@
 scalaVersion := "3.3.4"
-name := "rfid-scala"
+name := "iot-scala"
 fork := true
 run / connectInput := true
