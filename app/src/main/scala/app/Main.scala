@@ -1,3 +1,5 @@
+package app
+
 /*
 
 import com.phidget22.{PhidgetException, RFID, VoltageRatioInput}
@@ -92,3 +94,25 @@ import scala.io.StdIn
       case _: PhidgetException => ()
       
  */
+
+import org.apache.pekko.actor.typed.scaladsl.Behaviors
+import scala.concurrent.{ExecutionContext}
+import org.apache.pekko.actor.typed.ActorSystem
+import app.http.*
+import app.http.controllers.*
+
+
+@main def run(): Unit =
+    given ActorSystem[Nothing] = ActorSystem(Behaviors.empty, "iot-http-server")
+
+    given ExecutionContext = summon[ActorSystem[Nothing]].executionContext
+
+    val host = "0.0.0.0"
+    val port = 8080
+
+    HttpServer
+      .start(controllers = List(HealthController()), host = host, port = port)
+      .foreach { binding =>
+        println(s"Server started at http://localhost:${binding.localAddress.getPort}")
+        println(s"Swagger UI: http://localhost:${binding.localAddress.getPort}/docs")
+      }
