@@ -63,11 +63,11 @@ final class RfidChannel(env: Env) extends PhidgetChannel("RFID", "serial=432108 
 }
 
 final class PhidgetHub(env: Env, channels: Vector[PhidgetChannel]) extends Device {
-  val name = "phidget"
-
-  private val channel = new TcpChannel(
-    name,
+  
+  private val channel: Channel = Channel.create(
+    "phidget",
     env.config.phidgetPort,
+    env.config.phidgetProtocol,
     onConnect = () => env.later(0)(if (up) attachAll()),
     onLine = _ => ()
   )

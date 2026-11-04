@@ -29,13 +29,18 @@ final class LineNoise(env: Env) {
 }
 
 final class ArduinoDevice(env: Env, sensors: Vector[Sensor]) extends Device {
-  val name = "arduino"
-
-  private val channel: TcpChannel = new TcpChannel(
-    name,
+  
+  private val channel: Channel = Channel.create(
+    "arduino",
     env.config.arduinoPort,
-    onConnect = () => env.later(0)(if (env.nowMs < downUntil) channel.dropClients()),
-    onLine = l => env.later(0)(onCommand(l))
+    env.config.arduinoProtocol,
+    onConnect = () =>
+      env.later(0) {
+        if (env.nowMs < downUntil)
+          channel.dropClients()
+      },
+    onLine = l =>
+      env.later(0)(onCommand(l))
   )
 
   private var downUntil = 0L
@@ -88,10 +93,4 @@ final class ArduinoDevice(env: Env, sensors: Vector[Sensor]) extends Device {
     if (cmd.nonEmpty && env.nowMs >= downUntil)
       send("ACK," + cmd.toUpperCase(Locale.ROOT).replace(' ', '_'))
   }
-
-  private def maybeDropCable(): Unit =
-    if (env.oneIn(90)) {
-      env.log("câble Arduino débranché")
-      channel.dropClients()
-    }
 }

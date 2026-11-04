@@ -13,6 +13,7 @@ final class Simulation(world: World, devices: Seq[Device]) {
 //    sbt "simulator/run --scenario canicule"     température qui monte vers 38 °C
 //    sbt "simulator/run --scenario chaos"        pannes 5x plus fréquentes (resets, coupures Wi-Fi, Phidgets)
 //    sbt "simulator/run --arduino-port 9001 --phidget-port 9002"
+//    sbt "simulator/run --arduino-port 9001 --arduino-protocol tcp --phidget-port 9002 --phidget-protocol udp"
 // ─────────────────────────────────────────────────────────────────────────────
 @main def simulator(args: String*): Unit = {
   val env = new Env(Config.parse(args))

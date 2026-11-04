@@ -19,16 +19,32 @@ object Scenario {
     all.getOrElse(name, throw new IllegalArgumentException(s"Scénario inconnu : $name (${all.keys.mkString(", ")})"))
 }
 
-final case class Config(scenario: Scenario = Scenario.Normal, arduinoPort: Int = 9001, phidgetPort: Int = 9002)
+final case class Config(scenario: Scenario = Scenario.Normal, arduinoPort: Int = 9001, arduinoProtocol: String = "udp", phidgetPort: Int = 9002, phidgetProtocol: String = "udp")
 
 object Config {
+
   def parse(args: Seq[String]): Config = {
-    val o = args.sliding(2, 2).collect { case Seq(k, v) => k -> v }.toMap
+    val o = args.sliding(2, 2)
+      .collect { case Seq(k, v) => k -> v }
+      .toMap
+
     val d = Config()
+
+    def protocol(key: String, default: String): String = {
+      val p = o.get(key)
+        .map(_.toLowerCase(Locale.ROOT))
+        .getOrElse(default)
+
+      require(p == "udp" || p == "tcp", s"Protocole invalide pour $key : $p (udp|tcp)") 
+      p
+    }
+
     Config(
-      scenario    = o.get("--scenario").map(Scenario.parse).getOrElse(d.scenario),
+      scenario = o.get("--scenario").map(Scenario.parse).getOrElse(d.scenario),
       arduinoPort = o.get("--arduino-port").map(_.toInt).getOrElse(d.arduinoPort),
-      phidgetPort = o.get("--phidget-port").map(_.toInt).getOrElse(d.phidgetPort)
+      arduinoProtocol = protocol("--arduino-protocol", d.arduinoProtocol),
+      phidgetPort = o.get("--phidget-port").map(_.toInt).getOrElse(d.phidgetPort),
+      phidgetProtocol = protocol("--phidget-protocol", d.phidgetProtocol)
     )
   }
 }
