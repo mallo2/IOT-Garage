@@ -117,8 +117,7 @@ object Feed {
   }
 }
 
-
-@main def listen(args: String*): Unit = {
+def listen(args: String*): Unit = {
   val o = args.sliding(2, 2)
     .collect { case Seq(k, v) => k -> v }
     .toMap
